@@ -1,3 +1,10 @@
+package main;
+
+import model.Epic;
+import model.SubTask;
+import model.Task;
+import service.TaskManager;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 /*В этом классе я постарался учесть всевозможные вызовы для проверки
@@ -93,11 +100,11 @@ public class Main {
         System.out.println("Введите описание Эпика:");
         String epicDescription = scanner.nextLine();
         Epic epic = new Epic(epicName, epicDescription);
-        tm.addTask(epic);
+        tm.addEpic(epic);
         System.out.println("А теперь введите подзадачи");
         createSubTask(epic);
     }
-    private static void createSubTask(Task newTask) {
+    private static void createSubTask(Epic epic) {
         while (true) {
             printSubTaskMenu();
             String commandSubTask = scanner.nextLine();
@@ -107,8 +114,8 @@ public class Main {
                     String subTaskName = scanner.nextLine();
                     System.out.println("Введите описание Подзадачи:");
                     String subTaskDescription = scanner.nextLine();
-                    SubTask subTask = new SubTask(subTaskName, subTaskDescription, newTask.getNumberOfTask());
-                    tm.addSubTask(newTask, subTask);
+                    SubTask subTask = new SubTask(subTaskName, subTaskDescription, epic);
+                    tm.addSubTask(subTask);
                     break;
                 case "2":
                     return;
@@ -123,18 +130,11 @@ public class Main {
         System.out.println("Таблица задач полностью очищена!");
     }
     private static void printListOfTasks() {
-        if (!tm.taskStorage.isEmpty()) {
+        ArrayList<Task> taskList = tm.getAllTasks();
+        if (taskList != null) {
             System.out.println("Список всех задач:");
-            ArrayList<ArrayList<Task>> task = tm.getAllTasks();
-            for (ArrayList<Task> list : task) {
-                if (list.size() == 1 && !list.get(0).label) {
-                    System.out.println("Задача: " + list.get(0));
-                } else {
-                    System.out.println("Эпик: " + list.get(0));
-                    for (int count = 1; count < list.size(); ++count) {
-                        System.out.println("\tПодзадача " +  count + ": " + list.get(count));
-                    }
-                }
+            for (Task task : taskList) {
+                System.out.println(task);
             }
         } else {
             System.out.println("Список задач пуст!");
@@ -144,12 +144,11 @@ public class Main {
         System.out.println("Введите ID Эпика:");
         int IDTask = scanner.nextInt();
         scanner.nextLine();
-        if (tm.getTask(IDTask) == null) {
+        if (!tm.epicStorage.containsKey(IDTask)) {
             System.out.println("Эпика с таким ID не сущкствует!");
         } else {
             System.out.println("Список всех подзадач Эпика с ID = " + IDTask + ":");
-            ArrayList<Task> subTasks = tm.getAllTasksByEpic(tm.getTask(IDTask));
-            for (Task subTask : subTasks) {
+            for (Task subTask : tm.epicStorage.get(IDTask).getSubTasks()) {
                 System.out.println(subTask);
             }
         }
@@ -171,23 +170,49 @@ public class Main {
         scanner.nextLine();
         if (tm.getTask(IDTask) == null) {
             System.out.println("Задачи с таким ID не существует!");
-        } else {
+            return;
+        } else if(tm.taskStorage.containsKey(IDTask)) {
             tm.deleteTask(IDTask);
             System.out.println("Задача удалена!");
+        } else if (tm.epicStorage.containsKey(IDTask)) {
+            tm.deleteEpic(IDTask);
+            System.out.println("Эпик удален!");
+        } else if (tm.subTaskStorage.containsKey(IDTask)) {
+            tm.deleteSubTask(IDTask);
+            System.out.println("Подзадача удалена!");
         }
     }
-
     private  static void update() {
         System.out.println("Введите идентификатор задачи для обновления:");
-        int taskID = scanner.nextInt();
-        scanner.nextLine();
-        System.out.println("Введите название задачи:");
-        String taskName = scanner.nextLine();
-        System.out.println("Введите описание задачи:");
-        String taskDescription = scanner.nextLine();
+        int taskID;
+        do {
+            taskID = scanner.nextInt();
+            scanner.nextLine();
+            if (tm.epicStorage.containsKey(taskID)) {
+                System.out.println("Пользователь не должен менять статус Эпика самостоятельно");
+                System.out.println("Введите ID для смены статуса Задачи или Подзадачи:");
+            } else if (tm.taskStorage.containsKey(taskID) || tm.subTaskStorage.containsKey(taskID))
+                break;
+            else {
+                System.out.println("Задачи с таким ID не существует. Введите другой ID Задачи или Подзадачи");
+            }
+        } while(true);
         System.out.println("Введите статус (NEW, IN_PROGRESS, DONE):");
-        StatusOfTask taskStatus = StatusOfTask.valueOf(scanner.nextLine().toUpperCase());
-        Task newTask = new Task(taskName, taskDescription, taskID, taskStatus);
-        tm.updateTask(newTask);
+        String taskStatus = scanner.nextLine().toUpperCase();
+
+        if (tm.taskStorage.containsKey(taskID)) {
+            Task task = new Task(tm.taskStorage.get(taskID).getName(),  tm.taskStorage.get(taskID).getDescription(),
+                    tm.taskStorage.get(taskID).getNumberOfTask());
+            task.setStatus(taskStatus);
+            tm.updateTask(task);
+        } else if (tm.subTaskStorage.containsKey(taskID)) {
+            SubTask subTask = new SubTask(tm.subTaskStorage.get(taskID).getName(),
+                    tm.subTaskStorage.get(taskID).getDescription(), tm.subTaskStorage.get(taskID).getNumberOfTask(),
+                    tm.subTaskStorage.get(taskID).getEpic());
+            subTask.setStatus(taskStatus);
+            tm.updateSubTask(subTask);
+        }
+
     }
 }
+
