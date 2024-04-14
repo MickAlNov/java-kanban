@@ -16,10 +16,6 @@ public class SubTask extends Task {
         return epic;
     }
 
-    public void setEpic(Epic epic) {
-        this.epic = epic;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

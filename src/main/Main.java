@@ -170,7 +170,6 @@ public class Main {
         scanner.nextLine();
         if (tm.getTask(IDTask) == null) {
             System.out.println("Задачи с таким ID не существует!");
-            return;
         } else if(tm.taskStorage.containsKey(IDTask)) {
             tm.deleteTask(IDTask);
             System.out.println("Задача удалена!");
