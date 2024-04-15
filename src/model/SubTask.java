@@ -8,8 +8,8 @@ public class SubTask extends Task {
         super(name, description);
         this.epic = epic;
     }
-    public SubTask(String name, String description, int numberOfTask, Epic epic) {
-        super(name, description, numberOfTask);
+    public SubTask(String name, String description, int id, Epic epic) {
+        super(name, description, id);
         this.epic = epic;
     }
     public Epic getEpic() {
@@ -35,7 +35,7 @@ public class SubTask extends Task {
         return "\tПодзадача{ " +
                 "Название='" + this.getName() + '\'' +
                 ", Описание='" + this.getDescription() + '\'' +
-                ", ID=" + this.getNumberOfTask() +
+                ", ID=" + this.getId() +
                 ", Статус=" + this.getStatus() +
                 '}';
     }

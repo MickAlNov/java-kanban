@@ -188,8 +188,16 @@ public class Main {
             taskID = scanner.nextInt();
             scanner.nextLine();
             if (tm.epicStorage.containsKey(taskID)) {
-                System.out.println("Пользователь не должен менять статус Эпика самостоятельно");
-                System.out.println("Введите ID для смены статуса Задачи или Подзадачи:");
+                System.out.println("Пользователь не должен менять статус Эпика самостоятельно.");
+                System.out.println("Вы можете поменять название и Описание");
+                System.out.println("Введите новое название: ");
+                String name = scanner.nextLine();
+                System.out.println("Введите новое описание: ");
+                String description = scanner.nextLine();
+                Epic epic = new Epic(name, description, taskID);
+                tm.updateEpic(epic);
+                System.out.println("Название и описание Эпика поменяны");
+                return;
             } else if (tm.taskStorage.containsKey(taskID) || tm.subTaskStorage.containsKey(taskID))
                 break;
             else {
@@ -201,12 +209,12 @@ public class Main {
 
         if (tm.taskStorage.containsKey(taskID)) {
             Task task = new Task(tm.taskStorage.get(taskID).getName(),  tm.taskStorage.get(taskID).getDescription(),
-                    tm.taskStorage.get(taskID).getNumberOfTask());
+                    tm.taskStorage.get(taskID).getId());
             task.setStatus(taskStatus);
             tm.updateTask(task);
         } else if (tm.subTaskStorage.containsKey(taskID)) {
             SubTask subTask = new SubTask(tm.subTaskStorage.get(taskID).getName(),
-                    tm.subTaskStorage.get(taskID).getDescription(), tm.subTaskStorage.get(taskID).getNumberOfTask(),
+                    tm.subTaskStorage.get(taskID).getDescription(), tm.subTaskStorage.get(taskID).getId(),
                     tm.subTaskStorage.get(taskID).getEpic());
             subTask.setStatus(taskStatus);
             tm.updateSubTask(subTask);

@@ -10,17 +10,27 @@ public class Epic extends Task {
         this.subTasks = new ArrayList<>();
     }
 
+    public Epic(String name, String description, int id) {
+        super(name, description, id);
+        this.subTasks = new ArrayList<>();
+    }
+
     public ArrayList<SubTask> getSubTasks() {
         if (subTasks == null)
             return null;
         else
-            return subTasks;
+            return new ArrayList<>(subTasks);
     }
 
-    public void setSubTasks(SubTask subTask) {
+    public void addSubTask(SubTask subTask) {
         subTasks.add(subTask);
     }
-
+    public void clearSubTasks() {
+        this.subTasks.clear();
+    }
+    public void removeSubTask(SubTask key) {
+        this.subTasks.remove(key);
+    }
     @Override
     public StatusOfTask getStatus() {
         boolean statusDone = true;
@@ -67,7 +77,7 @@ public class Epic extends Task {
         return "Эпик { " +
                 "Название='" + this.getName() + '\'' +
                 ", Описание='" + this.getDescription() + '\'' +
-                ", ID=" + this.getNumberOfTask() +
+                ", ID=" + this.getId() +
                 ", Статус=" + this.getStatus() +
                 '}';
     }

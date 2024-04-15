@@ -15,39 +15,35 @@ public class TaskManager {
 
 
     public void addTask(Task task) {
-        taskStorage.put(task.getNumberOfTask(), task);
+        taskStorage.put(task.getId(), task);
     }
     public void addEpic(Epic epic) {
-        epic.getSubTasks().clear();
-        epicStorage.put(epic.getNumberOfTask(), epic);
+        epicStorage.put(epic.getId(), epic);
     }
     public void addSubTask(SubTask subTask) {
         Epic ep = subTask.getEpic();
-        ep.setSubTasks(subTask);
-        subTaskStorage.put(subTask.getNumberOfTask(), subTask);
+        ep.addSubTask(subTask);
+        subTaskStorage.put(subTask.getId(), subTask);
     }
     public void updateTask(Task task) {
-        taskStorage.put(task.getNumberOfTask(), task);
+        taskStorage.put(task.getId(), task);
     }
     //Пользователь не может менять  статус Эпика. Метод меняет только описание и имя Эпика
     public void updateEpic(Epic epic) {
-        epicStorage.put(epic.getNumberOfTask(), epic);
+        epicStorage.get(epic.getId()).setName(epic.getName());
+        epicStorage.get(epic.getId()).setDescription(epic.getDescription());
     }
     public void updateSubTask(SubTask subTask) {
-        ArrayList<SubTask> taskList = new ArrayList<>();
-        subTaskStorage.put(subTask.getNumberOfTask(), subTask);
-        for(Integer st : subTaskStorage.keySet()) {
-                if (subTaskStorage.get(st).getEpic().equals(subTask.getEpic()))
-                    taskList.add(subTaskStorage.get(st));
-        }
-        subTask.getEpic().getSubTasks().clear();
-        subTask.getEpic().getSubTasks().addAll(taskList);
+        SubTask key = subTaskStorage.get(subTask.getId());
+        subTaskStorage.put(subTask.getId(), subTask);
+        subTask.getEpic().removeSubTask(key);
+        subTask.getEpic().addSubTask(subTask);
     }
     public void deleteTask(int id) {
         taskStorage.remove(id);
     }
     public void deleteEpic(int id) {
-        epicStorage.get(id).getSubTasks().clear();
+        epicStorage.get(id).clearSubTasks();
         for (Integer i : subTaskStorage.keySet()) {
             if (subTaskStorage.get(i).getEpic().equals(epicStorage.get(id)))
                 subTaskStorage.remove(i);
@@ -55,15 +51,10 @@ public class TaskManager {
         epicStorage.remove(id);
     }
     public void deleteSubTask(int id) {
-        ArrayList<SubTask> taskList = new ArrayList<>();
         Epic epic = subTaskStorage.get(id).getEpic();
+        SubTask key = subTaskStorage.get(id);
         subTaskStorage.remove(id);
-        for(Integer st : subTaskStorage.keySet()) {
-                if (subTaskStorage.get(st).getEpic().equals(epic))
-                    taskList.add(subTaskStorage.get(st));
-        }
-        epic.getSubTasks().clear();
-        epic.getSubTasks().addAll(taskList);
+        epic.removeSubTask(key);
     }
     public ArrayList<Task> getAllTasks() {
         ArrayList<Task> taskList = new ArrayList<>();
